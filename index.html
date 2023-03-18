@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>WeMapping Application</title>
+        <!--fichier css-->
+        <link rel="stylesheet" href="src/leaflet.css">
+         <link rel="stylesheet" href="src/css/bootstrap.min.css"> 
+        <!--script js-->
+        <script src="src/leaflet-src.js"></script>
+        <script src="src/jquery-3.2.0.min.js"></script>
+        <style>
+            #map{
+                height: 100vh;
+            }
+            #mouseCoord, #btnUSMS, #btnloc{
+                margin-top: 15px;
+            }
+
+            
+            
+        </style>
+    </head>
+    <body>
+           <div id="side-bar" class="col-md-3 text-center">
+              <button id="btnloc" class="btn btn-primary btn-block">Localisation</button>
+              <button id="btnUSMS" class="btn btn-secondary btn-block">PopUp vers USMS</button>
+              Coordonnes : <span id="mouseCoord"></span>
+           
+            </div>
+           <div id="map" class="col-md-9"></div>
+           <script>
+            //32.376878192750716, -6.320149993254135
+              var mymap;
+              var lyrOSM;
+              var mrklocation;
+              var popUsms;
+              $(document).ready(function(){
+
+                    mymap = L.map('map',{center:[32.34,-6.343],zoom:13});
+                    lyrOSM = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png');
+                    mymap.addLayer(lyrOSM);
+                    
+
+                    //-----------evenement click sur la carte-----------------------------------------------------------
+                    mymap.on('click', function(e){
+                        var dt = new Date();
+                       L.marker(e.latlng).addTo(mymap).bindPopup(e.latlng.toString()+
+                       "<br/><h4>"+dt.toString()+'</h4>');
+                    })
+
+                    //----------------------localisation-------------------------------------------------
+                     mymap.on('locationfound',function(e){
+                          //console.log(e);
+                    if(mrklocation){mrklocation.remove();}
+                      mrklocation = L.circle(e.latlng, {radius:15}).addTo(mymap);
+                          mymap.setView(e.latlng, 17);
+                     })
+                     mymap.on('locationerror', function(e){
+                        alert("location not found....!");
+                     });
+
+                    /* mymap.on('keypress', function(e){
+                         if(e.originalEvent.key=='l')
+                            mymap.locate();
+                     })*/
+
+                     //-------------------------boutton de localisation-------------------------------------------
+                        $("#btnloc").click(function(){
+                            mymap.locate();
+                        })
+
+                    //-------------------------boutton de poUp USMS-------------------------------------------
+                    popUsms = L.popup({maxWidth:200, keepView:true});
+                    popUsms.setLatLng([32.34,-6.343]);
+                    popUsms.setContent("<h3>USMS</h3><h4>[32.34,-6.343]</h4><img src='img/logo_usms.png'>");
+                    $("#btnUSMS").click(function(){
+                            mymap.openPopup(popUsms);
+                        })
+                    
+                    //----------Afficher sur le side-bar les coord de la souris----------------------------
+                   
+                    mymap.on('mousemove', function(e){
+                        //$("#mouseCoord").html(e.latlng.toString());
+                        
+                     });
+                   
+                    
+                    
+                })//fin fct ready 
+           </script>
+    </body>
+</html>
